@@ -5,6 +5,7 @@
   "dependencies": {
     "@testing-library/jest-dom": "^5.16.5",
     "@testing-library/user-event": "^13.5.0",
+    "axios": "^1.2.2",
     "gapi-script": "^1.2.0",
     "passport-facebook": "^3.0.0",
     "passport-google-oauth20": "^2.0.0",

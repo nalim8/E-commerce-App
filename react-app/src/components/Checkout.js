@@ -1,6 +1,8 @@
 export function Checkout() {
   return (
     <>
+    <h1>Checkout</h1>
+    <p>Where do you want us to send the order?</p>
     <form>
       <label for='fname'>First name</label><br/>
       <input name='fname'></input><br/>
