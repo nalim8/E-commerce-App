@@ -1,11 +1,11 @@
-import { ProductList } from './ProductList'
-import { products } from '../data/product_data'
-import React from 'react'
+import ProductList from './ProductList'
 
-export function Products() {
+export default function Products() {
+
  return (
   <>
-  <ProductList products={products} />
+    <h1>Products</h1>
+    <ProductList />
   </>
  )
 }

@@ -1,7 +1,6 @@
-import PostList from './PostList'
-import { OrderList } from './OrderList'
+import OrderList from './OrderList'
 
-export function OrderHistory() {
+export default function OrderHistory() {
   return (
     <>
     <h1>Order history</h1>

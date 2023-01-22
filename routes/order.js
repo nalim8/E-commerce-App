@@ -2,11 +2,43 @@ const express = require('express')
 const router = express.Router()
 const db = require('../db')
 const bodyParser = require('body-parser')
+const OrderModel = require('../models/orderModel');
+//const OrderItemModel = require('../models/orderItemModel')
+
+const Order = new OrderModel()
+//const OrderItem = new OrderItemModel()
 
 router.use(bodyParser.json())
 router.use(bodyParser.urlencoded({extended: true}))
 
-router.get('/orders', (req, res) => {
+router.get('orders/', async (req, res, next) => {
+    try {
+        const { id } = req.user;
+        console.log(id)
+        //const result = await Order.findByUser(id);
+        const result = await Order.findAll();
+        res.status(200).send(result);
+        } catch(err) {
+        next(err);
+    }
+})
+
+router.get('orders/:id', async (req, res, next) => {
+    try {
+      const orderId = req.params.id;
+  
+      const result = await Order.findById(orderId);
+      res.status(200).send(result);
+    } catch(err) {
+      next(err);
+    }
+})
+
+
+module.exports = router
+
+
+/* router.get('/orders', (req, res) => {
     const queryString = 'SELECT * FROM order_details ORDER BY created_at DESC'
     db.query(queryString, (error, result) => {
         if (error) {
@@ -54,6 +86,4 @@ router.put('/orders/:id', (req, res) => {
         }
         res.status(200).send(`Order modified with ID: ${id}`)
     })
-})
-
-module.exports = router
+}) */
