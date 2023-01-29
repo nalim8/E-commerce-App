@@ -8,7 +8,7 @@ import axios from '../api/axios';
 const LOGIN_URL = '/login';
 
 export default function Login() {
-  const { setAuth } = useContext(AuthContext);
+  //const { setAuth } = useContext(AuthContext);
   const userRef = useRef()
   const errRef = useRef()
 
@@ -31,16 +31,16 @@ export default function Login() {
 
     try {
       const response = await axios.post(LOGIN_URL,
-        JSON.stringify({ user, pwd }),
+        JSON.stringify({ username: user, password: pwd }),
         {
-            headers: { 'Content-Type': 'application/json' },
-            withCredentials: true
+          headers: { 'Content-Type': 'application/json' },
+          withCredentials: true
         }
       );
       console.log(JSON.stringify(response?.data));
-      const accessToken = response?.data?.accessToken;
-      const roles = response?.data?.roles;
-      setAuth({ user, pwd, roles, accessToken });
+      //const accessToken = response?.data?.accessToken;
+      //const roles = response?.data?.roles;
+      //setAuth({ user, pwd, roles, accessToken });
       setUser('');
       setPwd('');
       setSuccess(true);
@@ -104,17 +104,8 @@ export default function Login() {
               </form>
               <p>Log in with your Google account</p>
               <div id='signInButton'>
-                <GoogleButton
-                  //clientId={clientId}
-                  buttonText="Login"
-                  onSuccess={onSuccess}
-                  onFailure={onFailure}
-                  cookiePolicy={'single_host_origin'}
-                  isSignedIn={true}
-                />  
+                <GoogleButton/>  
               </div>
-              
-                
               <p>
                 Need an Account?<br />
                 <span className="line">

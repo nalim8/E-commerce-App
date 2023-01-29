@@ -71,12 +71,7 @@ router.get('/products/:id', async (req, res, next) => {
 router.post('products/', upload.single('image'), async (req, res, next) => {
   try {
     console.log(req.file)
-    const data = {
-      name: req.body.name,
-      desc: req.body.desc,
-      price: req.body.price,
-      image: req.file.path
-    }
+    const data = req.body
     const result = await Product.create(data)
     res.status(201).send(`Product added with ID: ${result.rows[0].id}`)
   } catch(err) {

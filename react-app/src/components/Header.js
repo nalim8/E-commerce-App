@@ -1,14 +1,15 @@
 import { Link } from 'react-router-dom';
 import './Header.css'
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
+import { faCheck, faTimes, faInfoCircle } from "@fortawesome/free-solid-svg-icons"
 
-export default function Header({cartItems}) {
+export default function Header() {
   return (
     <header className='header'>
       <div>
         <h1>
           <Link to='/' className='logo'>
-            Electronics Shop
+            Candy Shop
           </Link>
         </h1>
       </div>
@@ -32,9 +33,9 @@ export default function Header({cartItems}) {
             </li>
             <li>
               <Link to="/cart" className='cart'>
-                <FontAwesomeIcon icon="fa-solid fa-cart-shopping" />
+              <FontAwesomeIcon icon="fa-solid fa-cart-shopping" />
                 <span className='cart-length'>
-                  {cartItems.length === 0 ? "" : cartItems.length}
+                  {/* {cartItems.length === 0 ? "" : cartItems.length} */}
                 </span>
               </Link>
             </li>

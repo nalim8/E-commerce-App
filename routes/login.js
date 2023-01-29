@@ -2,88 +2,40 @@ const express = require('express')
 const router = express.Router()
 const db = require('../db')
 const passport = require('passport')
-const LocalStrategy = require('passport-local')
-const GoogleStrategy = require('passport-google-oauth20').Strategy;
-const FacebookStrategy = require('passport-facebook');
-const crypto = require('crypto')
+const initializePassport = require('../auth/passport-config')
 const UserModel = require('../models/userModel')
-
-const googleClientId = process.env.GOOGLE_CLIENT_ID
-const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET
 
 const User = new UserModel()
 
-passport.serializeUser((user, done) => {
-  done(null, user.id)
-})
-
-passport.deserializeUser((id, done) => {
-  new Promise(User.findOneById(id)).then((user) => {
-    done(null, user)
-  }) 
-})
-
-
-const localStrategy = new LocalStrategy(function verify(username, password, cb) {
-  db.get('SELECT * FROM users WHERE username = $1', [username], function(err, user) {
-      if (err) { return cb(err); }
-      if (!user) { return cb(null, false, { message: 'Incorrect username or password.' }); }
-
-      crypto.pbkdf2(password, user.salt, 310000, 32, 'sha256', function(err, hashedPassword) {
-          if (err) { return cb(err); }
-          if (!crypto.timingSafeEqual(user.hashed_password, hashedPassword)) {
-              return cb(null, false, { messsage: 'Incorrect username or password.' });
-          }
-          return cb(null, user);
-      });
-  });
-})
-
-const googleStrategy = new GoogleStrategy({
-  clientID: googleClientId,
-  clientSecret: googleClientSecret,
-  callbackURL: "/login/google/redirect",
-  passReqToCallback: true
-},
-  function(accessToken, refreshToken, profile, done) {
-    console.log('passport callback function fired')
-    console.log('profile: ', profile)
-    
-    const { id, displayName } = profile
-    
-    const currentUser = User.findOneByGoogleId()
-    
-    if (currentUser) {
-      console.log(`User is ${currentUser}`)
-      done(null, currentUser)
-    } else {
-      new Promise(
-        User.create({
-          username: displayName,
-          googleId: id
-        }).then((newUser) => {
-          console.log('new user created' + newUser)
-          done(null, newUser)
-        })
-      )
-      done(null, newUser)
-    }
-  }
+initializePassport(
+  passport, 
+  username => users.find(user => user.username === username),
+  id => users.find(user => user.id === id)
 )
 
-passport.use(localStrategy);
-passport.use(googleStrategy);
+  username => User.findOneByUsername(username)
 
-router.get('/login', (req, res) => {
+/* router.get('/login', (req, res) => {
   res.render('login')
-})
+}) */
 
-router.get('/logout', (req, res) => {
+router.post('/login',
+    passport.authenticate('local', { 
+      successRedirect: '/',
+      failureRedirect: '/login',
+      failureFlash: true
+     }),
+    (req, res) => {
+      res.redirect('/~' + req.user.username);
+    });
+
+router.delete('/logout', (req, res) => {
   req.logout()
   res.redirect('/login')
 })
 
 
+// -----------------------------
 // Routes for Google Login
 
 router.get('/login/google',
@@ -103,5 +55,19 @@ router.post('/login/password',
     (req, res) => {
         res.redirect('/~' + req.user.username);
     });
+
+function checkAuthenticated(req, res, next) {
+  if (req.isAthenticated()) {
+    return next()
+  }
+  res.redirect('/login')
+}    
+
+function checkNotAuthenticated(req, res, next) {
+  if (req.isAthenticated()) {
+    return res.redirect('/')
+  }
+  next()   
+}
 
 module.exports = router

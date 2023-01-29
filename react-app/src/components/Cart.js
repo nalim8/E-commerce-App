@@ -1,27 +1,11 @@
 import React, { useState, useEffect } from 'react';
+import axios from '../api/axios';
 import './Cart.css'
-import CartItem from './CartItem';
 
-export default function Cart({cartItems, handleAddProduct, handleRemoveProduct, handleCartClearance}) {
-  const [data, setData] = useState([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchData() {
-      const response = await fetch('http://localhost:4000/products');
-      const data = await response.json();
-      console.log(data)
-      setData(data);
-      setLoading(false);
-    }
-    fetchData();
-  }, []);
-
-  if (loading) {
-    return <p>Loading...</p>; 
-  }
+export default function Cart({ cartItems, handleAddProduct, handleRemoveProduct, handleCartClearance }) {
 
   const totalPrice = cartItems.reduce((price, item) => price + item.quantity * item.price, 0)
+  console.log(totalPrice)
 
   return (
     <div className='cart-item'>
@@ -50,7 +34,7 @@ export default function Cart({cartItems, handleAddProduct, handleRemoveProduct, 
                 <button className='cart-item-remove' onClick={() => handleRemoveProduct(item)}>-</button>
               </div> 
               <div className='cart-item-price'>
-                {item.quantity} * ${item.price}
+                {item.quantity} * {item.price}
               </div> 
             </div>   
           ))}
@@ -59,7 +43,7 @@ export default function Cart({cartItems, handleAddProduct, handleRemoveProduct, 
         <div className='cart-item-total-price-name'>
           Total price
           <div className='cart-item-total-price'>
-            ${totalPrice}
+            {totalPrice} €
           </div>
         </div>    
     </div>

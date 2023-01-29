@@ -10,11 +10,10 @@ module.exports = class UserModel {
    */
   async create(data) {
     try {
-
       // Generate SQL statement - using helper for dynamic parameter injection
       const statement = pgp.helpers.insert(data, null, 'users') + 'RETURNING *';
   
-      // Execute SQL statment
+      // Execute SQL statement
       const result = await db.query(statement);
 
       if (result.rows?.length) {
@@ -33,10 +32,10 @@ module.exports = class UserModel {
    * @param  {Object}      data [User data]
    * @return {Object|null}      [Updated user record]
    */
-  async update(data) {
+  async update(userId, data) {
     try {
-
-      const { id, ...params } = data;
+      const id = userId
+      const { ...params } = data;
 
       // Generate SQL statement - using helper for dynamic parameter injection
       const condition = pgp.as.format('WHERE id = ${id} RETURNING *', { id });
@@ -63,7 +62,6 @@ module.exports = class UserModel {
    */
   async findOneByUsername(username) {
     try {
-
       // Generate SQL statement
       const statement = `SELECT *
                          FROM users
@@ -91,7 +89,6 @@ module.exports = class UserModel {
    */
   async findOneById(id) {
     try {
-
       // Generate SQL statement
       const statement = `SELECT *
                          FROM users
@@ -114,7 +111,6 @@ module.exports = class UserModel {
 
   async findOneByGoogleId(googleId) {
     try {
-
       // Generate SQL statement
       const statement = `SELECT *
                          FROM users

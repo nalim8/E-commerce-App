@@ -1,9 +1,14 @@
+if (process.env.NODE_ENV !== 'production') {
+  require('dotenv').config()
+}
+
 const express = require('express')
-//const session = require('express-session')
 const morgan = require('morgan')
 const cors = require('cors')
 const passport = require('passport')
-const cookieSession = require('cookie-session')
+const flash = require('express-flash')
+const session = require('express-session')
+const methodOverride = require('method-override')
 
 const userRouter = require('./routes/user.js')
 const orderRouter = require('./routes/order.js')
@@ -15,7 +20,6 @@ const checkoutRouter = require('./routes/checkout.js')
 const profileRouter = require('./routes/profile.js')
 
 const PORT = process.env.PORT || 4000;
-const cookieKey = process.env.COOKIE_KEY
 
 const app = express()
 
@@ -26,13 +30,16 @@ app.use(cors({
   optionSuccessStatus: 200
 }))
 
-app.use(cookieSession({
-  maxAge: 24 * 60 * 60 * 1000,
-  keys: [cookieKey]
+app.use(flash())
+app.use(session({
+  secret: process.env.SESSION_SECRET,
+  resave: false,
+  saveUninitialized: false
 }))
 
 app.use(passport.initialize())
 app.use(passport.session())
+app.use(methodOverride('_method'))
 
 app.use(morgan('short'))
 app.use('/uploads', express.static('uploads'))

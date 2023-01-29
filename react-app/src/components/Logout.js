@@ -7,8 +7,8 @@ export default function Logout() {
   }
 
   return (
-    <div id='signOutButton'>
-      
-    </div>
+    <form action="/logout?_method=DELETE" method="POST">
+      <button type="submit">Log out</button>
+    </form>
   )
 }

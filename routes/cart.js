@@ -13,27 +13,23 @@ const CartItem = new CartItemModel()
 
 router.get('/cart', async (req, res, next) => {
     try {
-        const userId = req.user.id;
-        // Load user cart based on ID
-        const response = await Cart.findOneByUser(userId);
+        const sessionId = req.sessionID;
 
-        // Load cart items and add them to the cart record
-        const items = await CartItem.find(cart.id);
-        cart.items = items;
-  
-        res.status(200).send(response);
-  
+        const cart = await Cart.findOneBySession(sessionId);
+
+        res.status(200).send(cart);
       } catch(err) {
         next(err);
     }
 })
 
-router.put('/cart', async (req, res,next) => {
+router.put('/cart/:id', async (req, res,next) => {
     try {
-        const { id } = req.user;
-      
-        const response = await Cart.get({ id });
-        res.status(200).send(response);
+        const cartId  = req.params.id;
+
+        const cart = await Cart.findOneById(cartId);
+
+        res.status(200).send(cart);
       } catch(err) {
         next(err);
         throw err
@@ -42,44 +38,60 @@ router.put('/cart', async (req, res,next) => {
 
 router.post('/cart', async (req, res, next) => {
     try {
-        const userId = req.user.id;
-      
-        const Cart = new CartModel();
-        const response = await Cart.create(userId);
+        const sessionId = req.sessionID;
+
+        const cart = await Cart.create(sessionId);
   
-        res.status(200).send(response);
+        res.status(200).send(cart);
       } catch(err) {
         next(err);
         throw err
     }
 })
 
+router.get('/cart/items', async (req, res, next) => {
+    try {
+        const sessionId = req.sessionID;
+
+        const items = await CartItem.find(sessionId);
+
+        res.status(200).send(items);
+      } catch(err) {
+        next(err);
+    }
+})
+
 router.post('/cart/items', async (req, res, next) => {
     try {
-      const userId = req.user.id;
+      //const sessionId = req.sessionID;
+      const sessionId = "_P5DZ1nM0vbDP2Zdq6DCg5ahko01kENO"
+      const productId = req.body.product_id
       const data = req.body;
-    
-      // Load user cart based on ID
-      const cart = await Cart.findOneByUser(userId);
-
-      // Create cart item
-      const response = await CartItem.create({ cartId: cart.id, ...data });
-
-      res.status(200).send(response);
+      
+      const itemId = await CartItem.getItemId(sessionId, productId)
+      console.log('itemId: ', itemId)
+      if (itemId) {
+        res.send("Item already exists")
+        req.itemId = itemId
+        next()
+      } else {
+        const createdItem = await CartItem.create({ session_id: sessionId, ...data });
+        res.status(200).send(createdItem);
+      }
+      
     } catch(err) {
       next(err);
       throw err
     }
 });
 
-router.put('/cart/items/:id', async (req, res, next) => {
+router.put('/cart/items', async (req, res, next) => {
     try {
-        const cartItemId = req.params.id;
-        const data = req.body;
+        const data = req.body
 
-        const response = await CartItem.update(cartItemId, data);
+        const updatedItem = await CartItem.update(cartItemId, data);
 
-        res.status(200).send(response);
+        res.status(200).send({ data: updatedItem, message: "Item successfully updated" });
     } catch(err) {
         next(err);
         throw err
@@ -90,9 +102,9 @@ router.delete('/cart/items/:id', async (req, res, next) => {
     try {
         const cartItemId = req.params.id;
 
-        const response = await CartItem.delete(cartItemId);
+        const deletedItem = await CartItem.delete(cartItemId);
 
-        res.status(200).send(response);
+        res.status(200).send(deletedItem);
     } catch(err) {
         next(err);
         throw err
@@ -141,9 +153,9 @@ router.post('/cart/checkout', async (req, res, next) => {
 
         const { cartId, paymentInfo } = req.body; 
 
-        const response = await checkout(cartId, userId, paymentInfo);
+        const result = await checkout(cartId, userId, paymentInfo);
 
-        res.status(200).send(response);
+        res.status(200).send(result);
     } catch(err) {
         next(err);
         throw err

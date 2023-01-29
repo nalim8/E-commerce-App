@@ -4,27 +4,12 @@ const pgp = require('pg-promise')({ capSQL: true });
 
 module.exports = class CartModel {
 
-  constructor(data = {}) {
-    this.created = data.created || moment.utc().toISOString();
-    this.modified = moment.utc().toISOString();
-    this.converted = data.converted || null;
-    this.isActive = data.isActive || true;
-  }
-
-  /**
-   * Creates a new cart for a user
-   * @param  {Object}      data [Session data]
-   * @return {Object|null}      [Created user record]
-   */
   async create(sessionId) {
     try {
+      const data = { session_id: sessionId }
 
-      const data = { sessionId, ...this}
-
-      // Generate SQL statement - using helper for dynamic parameter injection
       const statement = pgp.helpers.insert(data, null, 'cart') + 'RETURNING *';
   
-      // Execute SQL statment
       const result = await db.query(statement);
 
       if (result.rows?.length) {
@@ -38,21 +23,13 @@ module.exports = class CartModel {
     }
   }
 
-  /**
-   * Loads a cart by User ID
-   * @param  {number}      id [Session ID]
-   * @return {Object|null}    [Cart record]
-   */
-  static async findOneByUser(sessionId) {
+  async findOneBySession(sessionId) {
     try {
-
-      // Generate SQL statement
       const statement = `SELECT *
                          FROM cart
                          WHERE session_id = $1`;
       const values = [sessionId];
   
-      // Execute SQL statment
       const result = await db.query(statement, values);
 
       if (result.rows?.length) {
@@ -66,21 +43,13 @@ module.exports = class CartModel {
     }
   }
 
-  /**
-   * Loads a cart by ID
-   * @param  {number}      id [Cart ID]
-   * @return {Object|null}    [Cart record]
-   */
-  static async findOneById(id) {
+  async findOneById(cartId) {
     try {
-
-      // Generate SQL statement
       const statement = `SELECT *
                          FROM cart
                          WHERE id = $1`;
-      const values = [id];
+      const values = [cartId];
   
-      // Execute SQL statment
       const result = await db.query(statement, values);
 
       if (result.rows?.length) {

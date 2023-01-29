@@ -3,18 +3,10 @@ const pgp = require('pg-promise')({ capSQL: true });
 
 module.exports = class CartItemModel {
 
-  /**
-   * Creates a new cart line item
-   * @param  {Object}      data [Cart item data]
-   * @return {Object|null}      [Created cart item]
-   */
-  static async create(data) {
+  async create(data) {
     try {
-
-      // Generate SQL statement - using helper for dynamic parameter injection
-      const statement = pgp.helpers.insert(data, null, 'cartItems') + 'RETURNING *';
+      const statement = pgp.helpers.insert(data, null, 'cart_item') + 'RETURNING *';
  
-      // Execute SQL statment
       const result = await db.query(statement);
 
       if (result.rows?.length) {
@@ -28,20 +20,11 @@ module.exports = class CartItemModel {
     }
   }
 
-  /**
-   * Updates existing cart item
-   * @param  {Object}      data [Cart item data]
-   * @param  {Object}      id   [Cart item id]
-   * @return {Object|null}      [Updated cart item]
-   */
-  static async update(id, data) {
+  async update(id, data) {
     try {
-
-      // Generate SQL statement - using helper for dynamic parameter injection
       const condition = pgp.as.format('WHERE id = ${id} RETURNING *', { id });
       const statement = pgp.helpers.update(data, null, 'cart_item') + condition;
   
-      // Execute SQL statment
       const result = await db.query(statement);
 
       if (result.rows?.length) {
@@ -55,25 +38,38 @@ module.exports = class CartItemModel {
     }
   }
 
-  /**
-   * Retrieve cart items for a cart
-   * @param  {Object} cartId [Cart ID]
-   * @return {Array}         [Created cart item]
-   */
-  static async find(cartId) {
+  async updateQuantity(id, increase) {
     try {
+      const statement = `UPDATE cart_item
+                         SET quantity = 
+                          CASE
+                            WHEN $1 THEN quantity + 1
+                            ELSE quantity - 1
+                          END
+                         WHERE id = $2;`
 
-      // Generate SQL statement
-      const statement = `SELECT 
-                            cart_item.quantity,
-                            cart_item.id, 
-                            product.*
+      const values = [increase, id]
+      
+      const result = await db.query(statement, values);
+
+      if (result.rows?.length) {
+        return result.rows[0];
+      }
+
+      return null;
+
+    } catch(err) {
+      throw new Error(err);
+    }
+  }
+
+  async find(sessionId) {
+    try {
+      const statement = `SELECT *
                          FROM cart_item
-                         INNER JOIN product ON product.id = cart_item.product_id
-                         WHERE cart_id = $1`
-      const values = [cartId];
+                         WHERE session_id = $1`
+      const values = [sessionId];
   
-      // Execute SQL statment
       const result = await db.query(statement, values);
 
       if (result.rows?.length) {
@@ -87,22 +83,35 @@ module.exports = class CartItemModel {
     }
   }
 
-  /**
-   * Deletes a cart line item
-   * @param  {Object}      id [Cart item ID]
-   * @return {Object|null}    [Deleted cart item]
-   */
-  static async delete(id) {
+  async getItemId(sessionId, productId) {
     try {
+      const statement = `SELECT id
+                         FROM cart_item
+                         WHERE session_id = $1 
+                         AND product_id = $2`
+      const values = [sessionId, productId];
+  
+      const result = await db.query(statement, values);
 
-      // Generate SQL statement
+      if (result.rows?.length) {
+        return result.rows[0].id;
+      }
+
+      return null;
+
+    } catch(err) {
+      throw new Error(err);
+    }
+  }
+
+  async delete(id) {
+    try {
       const statement = `DELETE
                          FROM cart_item
                          WHERE id = $1
                          RETURNING *`;
       const values = [id];
   
-      // Execute SQL statment
       const result = await db.query(statement, values);
 
       if (result.rows?.length) {
