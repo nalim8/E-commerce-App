@@ -14,8 +14,10 @@ import Header from './components/Header'
 
 function App() {
 
+  console.log('axios', axios)
+
   const [cartItems, setCartItems] = useState([])
-  console.log(cartItems)
+  console.log('cartItems', cartItems)
   
   const handleAddProduct = async (product) => {
     try {
@@ -29,13 +31,17 @@ function App() {
         setCartItems([...cartItems, {...product, quantity: 1}])
       }
 
-      const itemDataToServer = cartItems.map(item => ({
-        cartItemId: item.id,
-        quantity: item.quantity
-      }))
-
-      const response = await axios.put(`http://localhost:4000/cart/items`, itemDataToServer);
-      console.log(response.data);
+      const itemDataToServer = cartItems.map(item => (
+        {
+          productId: item.id,
+          quantity: item.quantity
+        }
+      ))
+      //console.log('itemDataToServer: ', itemDataToServer)
+      if (itemDataToServer.length !== 0) {
+        const response = await axios.put(`http://localhost:4000/cart/items`, itemDataToServer);
+        console.log(response.data);
+      }
 
     } catch(error) {
       console.error(error.message);

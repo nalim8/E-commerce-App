@@ -27,7 +27,7 @@ export default function Products({ handleAddProduct }) {
 
   /* const addItemToCart = async (product) => {
     try {
-      const response = await axios.post('http://localhost:4000/cart/items', { product_id: product.id, quantity: 1 });
+      const response = await axios.post('http://localhost:4000/cart', { product_id: product.id, quantity: 1 });
       console.log(response.data);
     } catch (error) {
       console.error(error.message);
