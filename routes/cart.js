@@ -9,7 +9,7 @@ router.use(bodyParser.urlencoded({extended: true}))
 
 const Cart = new CartModel()
 
-router.get('/cart', async (req, res, next) => {
+/* router.get('/cart', async (req, res, next) => {
     try {
         const sessionId = req.sessionID;
 
@@ -32,40 +32,49 @@ router.post('/cart', async (req, res, next) => {
         next(err);
         throw err
     }
-})
+}) */
+
+router.get('/cart/items', async (req, res, next) => {
+    try {
+        //const sessionId = req.sessionID;
+        const sessionId = "vz2g7a5Qbqrk-YIN473CttUxk3BDWdSS"
+
+        const items = await Cart.getItemsWithDetails(sessionId);
+
+        res.status(200).send(items);
+      } catch(err) {
+        next(err);
+    }
+})   
 
 router.post('/cart/items', async (req, res, next) => {
     try {
-      //const sessionId = req.sessionID;
-      const sessionId = "_P5DZ1nM0vbDP2Zdq6DCg5ahko01kENO"
-      const productId = req.body.product_id
-      const data = req.body;
-      
-      const itemId = await Cart.getItemId(sessionId, productId)
-      console.log('itemId: ', itemId)
-      if (itemId) {
-        res.send("Item is already in the cart")
-        req.itemId = itemId
-        next()
-      } else {
-        const createdItem = await Cart.createItem({ session_id: sessionId, ...data });
-        res.status(200).send(createdItem);
-      }
-      
+        //const sessionId = req.sessionID;
+        const sessionId = "vz2g7a5Qbqrk-YIN473CttUxk3BDWdSS"
+        const productId = req.body.id
+        
+        const itemId = await Cart.getItemId(sessionId, productId)
+        if (!itemId) {
+            const createdItem = await Cart.createItem(sessionId, productId);
+            res.status(200).send({data: createdItem, message: "Item created"});
+        }
+        
     } catch(err) {
-      next(err);
-      throw err
+        next(err);
+        throw err
     }
 });
 
 router.put('/cart/items', async (req, res, next) => {
     try {
-        const productId = req.body.productId
-        const data = req.body
+        const productId = req.body.id
+        const quantity = req.body.quantity
+        //const sessionId = req.sessionID
+        const sessionId = "vz2g7a5Qbqrk-YIN473CttUxk3BDWdSS"
 
-        const updatedItem = await Cart.updateItem(productId, data);
+        const updatedItem = await Cart.updateItem(sessionId, productId, quantity);
+        console.log('updatedItem:', updatedItem)
 
-        //res.status(200).send("Item successfully updated")
         res.status(200).send({ data: updatedItem, message: "Item successfully updated" });
     } catch(err) {
         next(err);
@@ -75,11 +84,25 @@ router.put('/cart/items', async (req, res, next) => {
 
 router.delete('/cart/items/:id', async (req, res, next) => {
     try {
-        const cartItemId = req.params.id;
+        const productId = req.params.id;
+        const sessionId = "vz2g7a5Qbqrk-YIN473CttUxk3BDWdSS";
 
-        const deletedItem = await Cart.deleteItem(cartItemId);
+        const deletedItemId = await Cart.deleteItem(productId, sessionId);
 
-        res.status(200).send(deletedItem);
+        res.status(200).send(`Cart item with ID ${deletedItemId} was deleted`);
+    } catch(err) {
+        next(err);
+        throw err
+    }
+});
+
+router.delete('/cart/items', async (req, res, next) => {
+    try {
+        const sessionId = "vz2g7a5Qbqrk-YIN473CttUxk3BDWdSS";
+
+        const result = await Cart.deleteAllItems(sessionId);
+
+        res.status(200).send(result);
     } catch(err) {
         next(err);
         throw err

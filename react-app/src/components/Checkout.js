@@ -1,4 +1,8 @@
+import './Checkout.css'
+import axios from '../api/axios'
+
 export default function Checkout() {
+
   return (
     <>
     <h1>Checkout</h1>
@@ -8,12 +12,6 @@ export default function Checkout() {
       <input name='fname'></input><br/>
       <label for='lname'>Last name</label><br/>
       <input name='lname'></input><br/>
-      <label for='password'>Password</label><br/>
-      <input name='password'></input><br/>
-      <label for='password'>Re-enter password</label><br/>
-      <input name='password'></input><br/>
-      <label for='email'>Email</label><br/>
-      <input name='email'></input><br/>
       <label for='street'>Street</label><br/>
       <input name='street'></input><br/>
       <label for='nr'>Number</label><br/>
@@ -23,6 +21,7 @@ export default function Checkout() {
       <label for='town'>Town</label><br/>
       <input name='town'></input><br/>
     </form>
+    <button className='checkout-button-stripe'>Check out with Stripe</button>
     </>
   )
   

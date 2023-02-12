@@ -1,0 +1,11 @@
+.checkout-button-stripe {
+  float: center;
+  background-color: #0070c9;
+  color: #ffffff;
+  padding: 10px 20px;
+  border-radius: 5px;
+  border: none;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}

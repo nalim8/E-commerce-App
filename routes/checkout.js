@@ -3,133 +3,90 @@ const router = express.Router()
 const db = require('../db')
 const bodyParser = require('body-parser')
 const path = require('path')
-const stripe = require('stripe')('SECRET_KEY'); // Add your Secret Key Here
+require('dotenv').config()
+const stripe = require('stripe')(process.env.STRIPE_PRIVATE_KEY);
+const CartModel = require('../models/cartModel')
+const ProductModel = require('../models/productModel')
+const OrderModel = require('../models/orderModel')
 
-const YOUR_DOMAIN = "http://localhost:3000";
+const Cart = new CartModel()
 
-// This will make our form data much more useful
+//const YOUR_DOMAIN = "http://localhost:3000";
+
 router.use(bodyParser.urlencoded({ extended: true }));
-
-// static files
-router.use(express.static(path.join(__dirname, './views')));
-
-// middleware
 router.use(express.json());
 
-
-router.post('/cart/:id/checkout', (req, res, next) => {
-    const id = req.params.id;
-    db.query('SELECT id FROM cart WHERE id = $1', [id], (error, result) => {
-        if (result.rows[0] && result.rows[0].length > 0) {
-            // Process payment and validate payment details
-
-            // Create order
-            db.query('INSERT INTO order_details VALUES ($1, $2)', [], (error, result) => {
-
-            })
+router.get('/cart/checkout', async (req, res, next) => {
+  try {
+    //const sessionId = req.sessionID
+    const sessionId = "vz2g7a5Qbqrk-YIN473CttUxk3BDWdSS"
+    const cartItems = await Cart.getItemsWithDetails(sessionId)
+    
+    const session = await stripe.checkout.sessions.create({
+      payment_method_types: ['card'],
+      mode: 'payment',
+      line_items: cartItems.map(item => {
+        return {
+          price_data: {
+            currency: 'eur',
+            product_data: {
+              name: item.name
+            },
+            unit_amount: parseInt(item.price.replace(/[^\d]/g, '').replace(',', ''))
+          },
+          quantity: item.quantity
         }
+      }), 
+      success_url: `${process.env.CLIENT_URL}/cart/checkout/success`,
+      cancel_url: `${process.env.CLIENT_URL}/cart/checkout//cancel`
     })
-})
-
-async function checkout(cartId, userId, paymentInfo) {
-    try {
-
-      const stripe = require('stripe')(process.env.STRIPE_PRIVATE_KEY);
-
-      // Load cart items
-      const cartItems = await Cart.findItem(cartId);
-
-      // Generate total price from cart items
-      const total = cartItems.reduce((total, item) => {
-        return total += Number(item.price);
-      }, 0);
-
-      // Generate initial order
-      const Order = new OrderModel({ total, userId });
-      Order.addItems(cartItems);
-      await Order.create();
-
-      // Make charge to payment method (not required in this project)
-      const charge = await stripe.charges.create({
-        amount: total,
-        currency: 'eur',
-        source: paymentInfo.id,
-        description: 'Super Charge'
-      });
-
-      // On successful charge to payment method, update order status to COMPLETE
-      const order = Order.update({ status: 'COMPLETE' });
-
-      return order;
-
-    } catch(err) {
-      throw err;
-    }
+    res.json({ url: session.url })
+    next()
+  } catch(err) {
+    res.status(500).json({ error: err.message })
   }
+}, postOrder)
 
-router.post('/cart/checkout', async (req, res, next) => {
-    try {
-        const userId = req.user.id;
+async function postOrder(req, res) {
+  try {
+    const sessionId = "vz2g7a5Qbqrk-YIN473CttUxk3BDWdSS"
+    const userId = 1
 
-        const { cartId, paymentInfo } = req.body; 
+    const Order = new OrderModel()
 
-        const result = await checkout(cartId, userId, paymentInfo);
+    Order.createOrder(sessionId, userId)
+        .then(() => {
+          console.log('Order created successfully');
+          res.status(201).send('OK')
+        })
+        .catch(error => {
+          console.error('Error creating order: ', error);
+        });
 
-        res.status(200).send(result);
-    } catch(err) {
-        next(err);
-        throw err
-    }
-});
+    // Clear the cart after the order is created
+    await Cart.deleteAllItems(sessionId)
+    
+  } catch (error) {
+    console.log(error)
+  }
+}
 
 module.exports = router
 
-/*
-router.post('/cart/:id/checkout', async (req, res) => {
-    const { product } = req.body;
-    const session = await stripe.checkout.sessions.create({
-        payment_method_types: ["card"],
-        line_items: [
-            {
-                price_data: {
-                    currency: "usd",
-                    product_data: {
-                        name: product.name,
-                        images: [product.image],
-                    },
-                    unit_amount: product.amount * 100,
-                },
-                quantity: product.quantity,
-            },
-        ],
-        mode: "payment",
-        success_url: `${YOUR_DOMAIN}/success.html`,
-        cancel_url: `${YOUR_DOMAIN}/cancel.html`,
-    });
 
-    res.json({ id: session.id });
-});
-*/
 
-/*
-router.post('/cart/:id/checkout', (req, res) => {
-    try {
-        stripe.customers.create({
-            name: req.body.name,
-            email: req.body.email,
-            source: req.body.stripeToken
-          })
-          .then(customer =>
-            stripe.charges.create({
-              amount: req.body.amount * 100,
-              currency: "usd",
-              customer: customer.id
-            })
-          )
-          .then(() => res.render("completed.html"))
-          .catch(err => console.log(err));
-      } catch (err) {
-        res.send(err);
-      }
-})
-*/
+/* async function getCartItems(req) {
+  const Cart = new CartModel()
+  const Product = new ProductModel()
+  const sessionId = "_P5DZ1nM0vbDP2Zdq6DCg5ahko01kENO";
+  
+  const items = await Cart.findItems(sessionId);
+
+  const promises = items.map(async item => {
+    const product = await Product.findOne(item.product_id)
+    return { ...product, quantity: item.quantity }
+  })
+  const cartItems = await Promise.all(promises)
+
+  return cartItems
+} */

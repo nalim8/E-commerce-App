@@ -1,15 +1,11 @@
 const db = require('../db');
-const moment = require('moment');
 const pgp = require('pg-promise')({ capSQL: true });
 const OrderItem = require('./orderItemModel');
 
 module.exports = class OrderModel {
 
   constructor(data = {}) {
-    this.created = data.created || moment.utc().toISOString();
     this.items = data.items || [];
-    this.modified = moment.utc().toISOString();
-    this.status = data.status || 'PENDING';
     this.total = data.total || 0;
     this.userId = data.userId || null;
   }
@@ -18,29 +14,28 @@ module.exports = class OrderModel {
     this.items = items.map(item => new OrderItem(item));
   }
 
-  /**
-   * Creates a new order for a user
-   * @return {Object|null}        [Created order record]
-   */
-  async create() {
+  getItems() {
+    return this.items
+  }
+
+  async create(total, userId) {
     try {
+      /* const { items, ...order } = this;
+      const statement = pgp.helpers.insert(order, null, 'orders') + ' RETURNING *'; */
+      const statement = `INSERT INTO order_details
+                         (total, user_id)
+                         VALUES ($1, $2)
+                         RETURNING *`
+      const values = [total, userId]                 
 
-      const { items, ...order } = this;
-
-      // Generate SQL statement - using helper for dynamic parameter injection
-      const statement = pgp.helpers.insert(order, null, 'order_details') + ' RETURNING *';
-
-      // Execute SQL statment
-      const result = await db.query(statement);
+      const result = await db.query(statement, values);
 
       if (result.rows?.length) {
-
         // Add new information generated in the database (ie: id) to the Order instance properties
-        Object.assign(this, result.rows[0]);
+        //Object.assign(this, result.rows[0]);
 
         return result.rows[0];
       }
-
       return null;
 
     } catch(err) {
@@ -48,26 +43,16 @@ module.exports = class OrderModel {
     }
   }
 
-  /**
-   * Updates an order for a user
-   * @param  {Object}      id   [Order ID]
-   * @param  {Object}      data [Order data to update]
-   * @return {Object|null}      [Updated order record]
-   */
   async update(data) {
     try {
-
-      // Generate SQL statement - using helper for dynamic parameter injection
       const condition = pgp.as.format('WHERE id = ${id} RETURNING *', { id: this.id });
       const statement = pgp.helpers.update(data, null, 'order_details') + condition;
   
-      // Execute SQL statment
       const result = await db.query(statement);
 
       if (result.rows?.length) {
         return result.rows[0];
       }
-
       return null;
 
     } catch(err) {
@@ -75,27 +60,18 @@ module.exports = class OrderModel {
     }
   }
 
-  /**
-   * Loads orders for a user
-   * @param  {number} userId [User ID]
-   * @return {Array}         [Order records]
-   */
-  static async findByUser(userId) {
+  async findByUser(userId) {
     try {
-
-      // Generate SQL statement
       const statement = `SELECT *
                          FROM order_details
                          WHERE user_id = $1`;
       const values = [userId];
   
-      // Execute SQL statment
       const result = await db.query(statement, values);
 
       if (result.rows?.length) {
-        return result.rows[0];
+        return result.rows;
       }
-
       return null;
 
     } catch(err) {
@@ -103,27 +79,18 @@ module.exports = class OrderModel {
     }
   }
 
-  /**
-   * Retrieve order by ID
-   * @param  {number}      orderId [Order ID]
-   * @return {Object|null}         [Order record]
-   */
-  static async findById(orderId) {
+  async findById(orderId) {
     try {
-
-      // Generate SQL statement
       const statement = `SELECT *
                          FROM order_details
                          WHERE id = $1`;
       const values = [orderId];
   
-      // Execute SQL statment
       const result = await db.query(statement, values);
 
       if (result.rows?.length) {
         return result.rows[0];
       }
-
       return null;
 
     } catch(err) {
@@ -131,26 +98,92 @@ module.exports = class OrderModel {
     }
   }
 
-  static async findAll() {
+  async findAll() {
     try {
-
-      // Generate SQL statement
       const statement = `SELECT *
                          FROM order_details`;
-      const values = [userId];
   
-      // Execute SQL statment
       const result = await db.query(statement);
 
       if (result.rows?.length) {
         return result.rows[0];
       }
-
       return null;
 
     } catch(err) {
       throw new Error(err);
     }
+  }
+
+  async delete(id) {
+    try {
+      const statement = `DELETE 
+                         FROM order_details
+                         WHERE id = $1`;
+      const values = [id]                   
+
+      const result = await db.query(statement, values);
+
+      if (result.rows?.length) {
+        return result.rows[0];
+      }
+      return null;                   
+    } catch(err) {
+      throw new Error(err);
+    }
+  }
+
+  async createOrderDetails(sessionId, userId) {
+    const result = await db.query(`
+      WITH cart_items AS (
+        SELECT 
+          cart.session_id, 
+          cart.product_id, 
+          cart.quantity
+        FROM 
+          cart
+        WHERE 
+          cart.session_id = $1
+      ), order_total AS (
+        SELECT 
+          SUM(product.price * cart_items.quantity) AS total, 
+          cart_items.session_id
+        FROM 
+          cart_items
+          INNER JOIN product ON product.id = cart_items.product_id
+        GROUP BY 
+          cart_items.session_id
+      )
+      INSERT INTO 
+        order_details (total, user_id)
+        SELECT 
+          order_total.total, 
+          $2
+        FROM 
+          order_total
+        RETURNING id
+    `, [sessionId, userId]);
+    return result.rows[0].id;
+  }
+  
+  async createOrderItems(orderId, sessionId) {
+    await db.query(`
+      INSERT INTO 
+        order_items (order_id, product_id, quantity)
+        SELECT 
+          $1, 
+          cart.product_id, 
+          cart.quantity
+        FROM 
+          cart
+        WHERE 
+          cart.session_id = $2
+    `, [orderId, sessionId]);
+  }
+
+  async createOrder(sessionId, userId) {
+    const orderId = await this.createOrderDetails(sessionId, userId);
+    await this.createOrderItems(orderId, sessionId);
   }
 
 }

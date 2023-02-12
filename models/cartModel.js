@@ -3,11 +3,15 @@ const pgp = require('pg-promise')({ capSQL: true });
 
 module.exports = class CartModel {
 
-  async createItem(data) {
+  async createItem(sessionId, productId) {
     try {
-      const statement = pgp.helpers.insert(data, null, 'cart') + 'RETURNING *';
+      const statement = `INSERT INTO cart 
+                         (session_id, product_id, quantity)
+                         VALUES ($1, $2, $3)
+                         RETURNING *`;
+      const values = [sessionId, productId, 1];                   
  
-      const result = await db.query(statement);
+      const result = await db.query(statement, values);
 
       if (result.rows?.length) {
         return result.rows[0];
@@ -20,17 +24,16 @@ module.exports = class CartModel {
     }
   }
 
-  async updateItem(productId, data) {
+  async updateItem(sessionId, productId, quantity) {
     try {
-      const quantity = data.quantity
-      
       const statement = `UPDATE cart
                          SET quantity = $1
-                         WHERE product_id = $2`
-      const values = [quantity, productId]
+                         WHERE product_id = $2
+                         AND session_id = $3`;
+      const values = [quantity, productId, sessionId];
 
       const result = await db.query(statement, values);
-
+      console.log(result)
       if (result.rows?.length) {
         return result.rows[0];
       }
@@ -50,8 +53,8 @@ module.exports = class CartModel {
                             WHEN $1 THEN quantity + 1
                             ELSE quantity - 1
                           END
-                         WHERE id = $2;`
-      const values = [increase, id]
+                         WHERE id = $2`;
+      const values = [increase, id];
       
       const result = await db.query(statement, values);
 
@@ -66,7 +69,7 @@ module.exports = class CartModel {
     }
   }
 
-  async findItem(sessionId) {
+  async findItems(sessionId) {
     try {
       const statement = `SELECT *
                          FROM cart
@@ -86,12 +89,53 @@ module.exports = class CartModel {
     }
   }
 
+  async getItemsWithDetails(sessionId) {
+    try {
+      const statement =`SELECT
+                          product.id,
+                          product.name,
+                          product.desc,
+                          product.image,
+                          product.category_id,
+                          product.inventory_id,
+                          product.price,
+                          cart.quantity,
+                          (product.price * cart.quantity) AS total_price,
+                          SUM(product.price * cart.quantity) OVER () AS grand_total
+                        FROM
+                          cart
+                        INNER JOIN product ON cart.product_id = product.id
+                        WHERE
+                          cart.session_id = $1`;
+      const values = [sessionId];
+
+      const result = await db.query(statement, values);
+
+      if (result.rows?.length) {
+        return result.rows;
+      }
+      return null;
+
+    } catch(err) {
+      throw Error(err);
+    }
+  }
+
+  /* async getTotal(sessionId) {
+    try {
+      const statement =
+        `SELECT total
+         FROM cart
+         INNER JOIN product`
+    }
+  } */
+
   async getItemId(sessionId, productId) {
     try {
       const statement = `SELECT id
                          FROM cart
                          WHERE session_id = $1 
-                         AND product_id = $2`
+                         AND product_id = $2`;
       const values = [sessionId, productId];
   
       const result = await db.query(statement, values);
@@ -107,18 +151,39 @@ module.exports = class CartModel {
     }
   }
 
-  async deleteItem(id) {
+  async deleteItem(productId, sessionId) {
     try {
       const statement = `DELETE
                          FROM cart
-                         WHERE id = $1
-                         RETURNING *`;
-      const values = [id];
+                         WHERE product_id = $1
+                         AND session_id = $2`;
+      const values = [productId, sessionId];
   
       const result = await db.query(statement, values);
 
       if (result.rows?.length) {
-        return result.rows[0];
+        return result.rows[0].id;
+      }
+
+      return null;
+
+    } catch(err) {
+      throw new Error(err);
+    }
+  }
+
+  async deleteAllItems(sessionId) {
+    try {
+      const statement = `DELETE
+                         FROM cart
+                         WHERE session_id = $1
+                         RETURNING *`;
+      const values = [sessionId];
+  
+      const result = await db.query(statement, values);
+
+      if (result.rows?.length) {
+        return result.rows;
       }
 
       return null;

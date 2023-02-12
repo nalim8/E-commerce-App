@@ -28,6 +28,7 @@
     "flash": "^1.1.0",
     "method-override": "^3.0.0",
     "moment": "^2.29.4",
+    "money-math": "^2.5.2",
     "morgan": "^1.10.0",
     "multer": "^1.4.5-lts.1",
     "passport": "^0.6.0",

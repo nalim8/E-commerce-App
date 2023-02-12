@@ -9,7 +9,7 @@ export default function Header() {
       <div>
         <h1>
           <Link to='/' className='logo'>
-            Candy Shop
+            Bike Store
           </Link>
         </h1>
       </div>
@@ -33,10 +33,7 @@ export default function Header() {
             </li>
             <li>
               <Link to="/cart" className='cart'>
-              <FontAwesomeIcon icon={faAtom} />
-                <span className='cart-length'>
-                  {/* {cartItems.length === 0 ? "" : cartItems.length} */}
-                </span>
+                Cart
               </Link>
             </li>
           </ul>

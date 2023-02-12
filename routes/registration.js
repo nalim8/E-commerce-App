@@ -11,15 +11,6 @@ const User = new UserModel();
 router.use(bodyParser.json())
 router.use(bodyParser.urlencoded({extended: true}))
 
-
-/* const requestTime = function (req, res, next) {
-    req.requestTime = Date.now();
-    next();
-  };
-  
-router.use(requestTime); */
-
-
 const handleNewUser = async (req, res) => {
     const { username, password } = req.body;
     if (!username || !password) return res.status(400).json({ 'message': 'Username and password are required.' });
@@ -48,6 +39,17 @@ const handleNewUser = async (req, res) => {
 
 router.post('/register', handleNewUser)
 
+module.exports = router
+
+
+
+/* const requestTime = function (req, res, next) {
+    req.requestTime = Date.now();
+    next();
+  };
+  
+router.use(requestTime); */
+
 /* router.post('/register', (req, res) => {
     const username = req.body.username
     const password = req.body.password
@@ -73,4 +75,3 @@ router.post('/register', handleNewUser)
     })  
 }) */
 
-module.exports = router

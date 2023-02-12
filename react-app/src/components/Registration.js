@@ -3,6 +3,7 @@ import { faCheck, faTimes, faInfoCircle } from "@fortawesome/free-solid-svg-icon
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
 import { Link } from 'react-router-dom'
 import axios from '../api/axios'
+import './Registration.css'
 
 const USER_REGEX = /^[a-zA-Z][a-zA-Z0-9-_.]{3,23}$/;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
@@ -180,40 +181,3 @@ export default function Registration() {
     </section>
   )
 }
-  /* function onSubmit(e) {
-    e.preventDefault()
-    axios.post(url, {
-      username: data.username,
-      password: data.password
-    })
-    .then(res => console.log(res.data))
-  }
-
-  function handle(e) {
-    const newdata = {...data}
-    newdata[e.target.id] = e.target.value
-    setData(newdata)
-    console.log(newdata)
-  }
-
-  return (
-    <>
-    <h1>Registration</h1>
-    <div>
-      <form onSubmit={(e) => onSubmit(e)}>
-        <label for='username'>Email</label><br/>
-        <input onChange={(e)=>handle(e)} type='text' id='username' value={data.username} /><br/>
-        <label for='password'>Password</label><br/>
-        <input onChange={(e)=>handle(e)} type='text' id='password' value={data.password} /><br/>
-      </form>
-    </div>
-    <div>
-      <button>Submit</button>
-    </div>
-    <div>
-      <p>Go to login if you are already registered.</p>
-      <Link to='/login'>Login</Link>
-    </div>
-    </>
-  )
-} */
