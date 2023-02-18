@@ -6,7 +6,6 @@ import './OrderHistory.css'
 export default function OrderHistory() {
   
   const [orders, setOrders] = useState([])
-  console.log('orders', orders)
   const [sortedOrders, setSortedOrders] = useState([])
 
   useEffect(() => {

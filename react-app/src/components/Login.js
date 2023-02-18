@@ -1,48 +1,46 @@
-import { Link } from 'react-router-dom'
-import { GoogleLogin } from 'react-google-login';
-import { GoogleButton } from 'react-google-button'
-import { useRef, useState, useEffect, useContext } from 'react'
-import AuthContext from "../context/AuthProvider";
+import { Link } from 'react-router-dom';
+import { GoogleButton } from 'react-google-button';
+import { useRef, useState, useEffect, useContext } from 'react';
+import AuthContext from '../context/AuthProvider';
 import axios from '../api/axios';
-import './Login.css'
-
-const LOGIN_URL = '/login';
+import './Login.css';
 
 export default function Login() {
-  //const { setAuth } = useContext(AuthContext);
-  const userRef = useRef()
-  const errRef = useRef()
+  const { setAuth } = useContext(AuthContext)
+  const emailRef = useRef();
+  const errRef = useRef();
 
-  const [user, setUser] = useState('')
-  const [pwd, setPwd] = useState('')
-  const [errMsg, setErrMsg] = useState('')
-  const [success, setSuccess] = useState(false)
-
-  useEffect(() => {
-    userRef.current.focus()
-  }, [])
+  const [email, setEmail] = useState('');
+  const [pwd, setPwd] = useState('');
+  const [errMsg, setErrMsg] = useState('');
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    setErrMsg('')
-  }, [user, pwd])
+    emailRef.current.focus();
+  }, []);
 
+  useEffect(() => {
+    setErrMsg('');
+  }, [email, pwd]);
+
+  const google = () => {
+    window.open("http://localhost:4000/auth/google");
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
-      const response = await axios.post(LOGIN_URL,
-        JSON.stringify({ username: user, password: pwd }),
+      const response = await axios.post('http://localhost:4000/auth/login',
+        JSON.stringify({ email: email, password: pwd }),
         {
           headers: { 'Content-Type': 'application/json' },
           withCredentials: true
         }
       );
       console.log(JSON.stringify(response?.data));
-      //const accessToken = response?.data?.accessToken;
-      //const roles = response?.data?.roles;
-      //setAuth({ user, pwd, roles, accessToken });
-      setUser('');
+      setAuth({ loggedIn: true, email, pwd })
+      setEmail('');
       setPwd('');
       setSuccess(true);
     } catch (err) {
@@ -57,15 +55,7 @@ export default function Login() {
       }
       errRef.current.focus();
     }
-  }
-
-  const onSuccess = (res) => {
-    console.log(`LOGIN SUCCESS! Current user: ${res.profileObj}`)
-  }
-
-  const onFailure = (res) => {
-    console.log(`LOGIN FAILED! result: ${res.profileObj}`)
-  }
+  };
   
   return (
     <>
@@ -82,17 +72,17 @@ export default function Login() {
               <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</p>
               <h1>Login</h1>
               <form onSubmit={handleSubmit}>
-                  <label htmlFor="username">Username:</label>
+                  <label htmlFor="email">Email address:</label>
                   <input
                     type="text"
-                    id="username"
-                    ref={userRef}
+                    id="email"
+                    name="email"
+                    ref={emailRef}
                     autoComplete="off"
-                    onChange={(e) => setUser(e.target.value)}
-                    value={user}
+                    onChange={(e) => setEmail(e.target.value)}
+                    value={email}
                     required
                   />
-
                   <label htmlFor="password">Password:</label>
                   <input
                     type="password"
@@ -104,8 +94,8 @@ export default function Login() {
                   <button>Login</button>
               </form>
               <p>Log in with your Google account</p>
-              <div id='signInButton'>
-                <GoogleButton/>  
+              <div id='googleButton'>
+                <GoogleButton onClick={google} />  
               </div>
               <p>
                 Need an Account?<br />
@@ -116,5 +106,5 @@ export default function Login() {
           </section>
       )}
     </>
-  )
-}
+  );
+};

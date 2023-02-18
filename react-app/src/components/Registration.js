@@ -1,89 +1,88 @@
-import { useState, useRef, useEffect } from 'react'
-import { faCheck, faTimes, faInfoCircle } from "@fortawesome/free-solid-svg-icons"
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { Link } from 'react-router-dom'
-import axios from '../api/axios'
-import './Registration.css'
+import { useState, useRef, useEffect } from 'react';
+import { faCheck, faTimes, faInfoCircle } from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Link } from 'react-router-dom';
+import axios from '../api/axios';
+import './Registration.css';
 
-const USER_REGEX = /^[a-zA-Z][a-zA-Z0-9-_.]{3,23}$/;
+const EMAIL_REGEX = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
 const PWD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#$%]).{8,24}$/;
-const REGISTER_URL = 'http://localhost:4000/register'
+const REGISTER_URL = 'http://localhost:4000/register';
 
 export default function Registration() {
-  const userRef = useRef()
-  const errRef = useRef()
+  const emailRef = useRef();
+  const errRef = useRef();
   
-  const [user, setUser] = useState('')
-  const [validName, setValidName] = useState(false)
-  const [userFocus, setUserFocus] = useState(false)
+  const [email, setEmail] = useState('');
+  const [validName, setValidName] = useState(false);
+  const [emailFocus, setEmailFocus] = useState(false);
 
-  const [pwd, setPwd] = useState('')
-  const [validPwd, setValidPwd] = useState(false)
-  const [pwdFocus, setPwdFocus] = useState(false)
+  const [pwd, setPwd] = useState('');
+  const [validPwd, setValidPwd] = useState(false);
+  const [pwdFocus, setPwdFocus] = useState(false);
 
-  const [matchPwd, setMatchPwd] = useState('')
-  const [validMatch, setValidMatch] = useState(false)
-  const [matchFocus, setMatchFocus] = useState(false)
+  const [matchPwd, setMatchPwd] = useState('');
+  const [validMatch, setValidMatch] = useState(false);
+  const [matchFocus, setMatchFocus] = useState(false);
 
-  const [errMsg, setErrMsg] = useState('')
-  const [success, setSuccess] = useState(false)
-
-  useEffect(() => {
-    userRef.current.focus()
-  }, [])
+  const [errMsg, setErrMsg] = useState('');
+  const [success, setSuccess] = useState(false);
 
   useEffect(() => {
-    const result = USER_REGEX.test(user)
+    emailRef.current.focus()
+  }, []);
+
+  useEffect(() => {
+    const result = EMAIL_REGEX.test(email)
     console.log(result)
-    console.log(user)
+    console.log(email)
     setValidName(result)
-  }, [user])
+  }, [email]);
 
   useEffect(() => {
     const result = PWD_REGEX.test(pwd)
-    console.log(result)
-    console.log(pwd)
-    setValidPwd(result)
-    const match = pwd === matchPwd
-    setValidMatch(match)
-  }, [pwd, matchPwd])
+    console.log(result);
+    console.log(pwd);
+    setValidPwd(result);
+    const match = pwd === matchPwd;
+    setValidMatch(match);
+  }, [pwd, matchPwd]);
 
   useEffect(() => {
-    setErrMsg('')
-  }, [user, pwd, matchPwd])
+    setErrMsg('');
+  }, [email, pwd, matchPwd]);
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    // if button enebled with JS hack
-    const v1 = USER_REGEX.test(user)
-    const v2 = PWD_REGEX.test(pwd)
+    e.preventDefault();
+
+    const v1 = EMAIL_REGEX.test(email);
+    const v2 = PWD_REGEX.test(pwd);
     if (!v1 || !v2) {
-      setErrMsg("Invalid Entry")
-      return
+      setErrMsg("Invalid Entry");
+      return;
     }
     try {
-      const response = await axios.post(REGISTER_URL, JSON.stringify({ username: user, password: pwd }),
+      const response = await axios.post(REGISTER_URL, JSON.stringify({ email: email, password: pwd }),
         {
           headers: { 'Content-Type': 'application/json' },
           withCredentials: true
         }
       );
-      console.log(response.data)
-      console.log(response.accessToken)
-      console.log(JSON.stringify(response))
-      setSuccess(true)
-      // clear input fields
+      console.log(response.data);
+      console.log(response.accessToken);
+      console.log(JSON.stringify(response));
+      setSuccess(true);
     } catch (err) {
       if (!err?.response) {
         setErrMsg('No Server Response')
       } else if (err.response?.status === 409) {
-        setErrMsg('Username Taken')
+        setErrMsg('Email Address Taken')
       } else {
         setErrMsg('Registration Failed')
       }
       errRef.current.focus();
     }
-  }
+  };
 
   return (
     <section>
@@ -91,27 +90,27 @@ export default function Registration() {
       <h1>Register</h1>
       <form onSubmit={handleSubmit}>
         <label htmlFor="username">
-          Username:
+          Email address:
           <span className={validName ? "valid" : "hide"}>
             <FontAwesomeIcon icon={faCheck} />
           </span>
-          <span className={validName || !user ? "hide" : "invalid"}>
+          <span className={validName || !email ? "hide" : "invalid"}>
             <FontAwesomeIcon icon={faTimes} />
           </span>
         </label>
         <input
           type="text"
           id="username"
-          ref={userRef}
+          ref={emailRef}
           autoComplete="off"
-          onChange={(e) => setUser(e.target.value)}
+          onChange={(e) => setEmail(e.target.value)}
           required
           aria-invalid={validName ? "false" : "true"}
           aria-describedby="uidnote"
-          onFocus={() => setUserFocus(true)}
-          onBlur={() => setUserFocus(false)}
+          onFocus={() => setEmailFocus(true)}
+          onBlur={() => setEmailFocus(false)}
         />
-        <p id="uidnote" className={userFocus && user && !validName ? "instructions" : "offscreen"}>
+        <p id="uidnote" className={emailFocus && email && !validName ? "instructions" : "offscreen"}>
           <FontAwesomeIcon icon={faInfoCircle} />
           4 to 24 characters.<br />
           Must begin with a letter.<br />
@@ -179,5 +178,5 @@ export default function Registration() {
           <Link to='/login'>Log In</Link>
         </span>
     </section>
-  )
-}
+  );
+};

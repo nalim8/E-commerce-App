@@ -1,14 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom'
-//import { useHistory } from 'react-router-dom';
-import { useNavigate } from "react-router-dom"
 import axios from '../api/axios';
-import './Cart.css'
-//import { add, mul } from 'money-math'
+import './Cart.css';
+import { faPlus, faMinus } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
 export default function Cart({ cartItems, handleAddProduct, handleRemoveProduct, handleCartClearance }) {
-
-  console.log('cartItems in Cart:', cartItems)
 
   const [totalPrice, setTotalPrice] = useState(0);
 
@@ -16,37 +12,29 @@ export default function Cart({ cartItems, handleAddProduct, handleRemoveProduct,
     let total = 0;
     if (cartItems.length) {
       cartItems.forEach(item => {
-        total += item.price * item.quantity;
+        const price = parseFloat(item.price.replace(/\./g, '').replace(',', '.').replace(' €', ''));
+        total += price * item.quantity;
       });
       setTotalPrice(total);
     } else {
-      setTotalPrice(0)
+      setTotalPrice(0);
     }
   }, [cartItems]);
 
-  /* useEffect(() => {
-    if (cartItems.length) {
-      setTotalPrice(cartItems[0].grand_total);
-    } else {
-      setTotalPrice(0)
-    }
-  }, [cartItems]); */
-
   const handleCheckout = async () => {
     try {
-      const response = await axios.get('http://localhost:4000/cart/checkout')
-      console.log(response.data.url)
-      //navigate(response.data.url, {replace: true});
-      window.location.replace(response.data.url)
+      const response = await axios.get('http://localhost:4000/cart/checkout');
+      console.log(response.data.url);
+      window.location.replace(response.data.url);
     } catch (error) {
       console.error(error);
     }
-  }
+  };
 
   return (
     <>
+      <h1>Cart</h1>
       <div className='cart-item'>
-        <h2 className='cart-item-header'>Cart Items</h2>
         <div className='clear-cart'>
           {cartItems.length >= 1 && (
             <button className='clear-cart-button' onClick={handleCartClearance}>Clear Cart</button>
@@ -67,8 +55,12 @@ export default function Cart({ cartItems, handleAddProduct, handleRemoveProduct,
               />
               <div className='cart-item-name'>{item.name}</div>
               <div className='cart-item-function'>
-                <button className='cart-item-add' onClick={() => handleAddProduct(item)}>+</button>
-                <button className='cart-item-remove' onClick={() => handleRemoveProduct(item)}>-</button>
+                <button className='cart-item-add' onClick={() => handleAddProduct(item)}>
+                  <FontAwesomeIcon icon={faPlus} />
+                </button>
+                <button className='cart-item-remove' onClick={() => handleRemoveProduct(item)}>
+                  <FontAwesomeIcon icon={faMinus} />
+                </button>
               </div> 
               <div className='cart-item-price'>
                 {item.quantity} * {item.price}
@@ -89,4 +81,4 @@ export default function Cart({ cartItems, handleAddProduct, handleRemoveProduct,
       </div>
     </>
   );
-}
+};

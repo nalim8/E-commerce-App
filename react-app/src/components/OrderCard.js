@@ -1,9 +1,6 @@
-import React, { useState } from 'react';
 import './OrderCard.css'
 
 export default function OrderCard({ order }) {
-
-  //const [isOpen, setIsOpen] = useState(false);
 
   return (
     <div className="card">
@@ -21,7 +18,7 @@ export default function OrderCard({ order }) {
           <ul className="item-list">
             {order.items.map(item => (
               <li className="order-item" key={item.id}>
-                <img className="order-item-image" src={item.image} />
+                <img className="order-item-image" src={item.image} alt={item.name} />
                 <p className="order-item-name">{item.name}</p>
                 <p className="order-item-quantity">Quantity: {item.quantity}</p>
               </li>
@@ -31,21 +28,3 @@ export default function OrderCard({ order }) {
     </div>
   );
 };
-
-
-{/* <div className="order-card" key={order.id}>
-          <ul>
-            <li>
-              Order Placed
-              {order.createdAt}
-            </li>
-            <li>
-              Total
-              {order.total}
-            </li>
-          </ul>
-          <h1 className='order-name'>{order.name}</h1>
-          <p className="order-price">{order.price}</p>
-          <p className="order-desc">{order.desc}</p>
-          <button onClick={() => handleShowDetails()}>View Order Details</button>
-          </div> */}

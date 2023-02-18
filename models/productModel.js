@@ -1,5 +1,4 @@
 const db = require('../db');
-const pgp = require('pg-promise')({ capSQL: true });
 
 module.exports = class ProductModel {
 
@@ -13,13 +12,12 @@ module.exports = class ProductModel {
       if (result.rows?.length) {
         return result.rows;
       }
-
       return [];
 
     } catch(err) {
       throw err;
     }
-  }
+  };
 
   async findByCategory(category) {
     try {
@@ -32,13 +30,12 @@ module.exports = class ProductModel {
       if (result.rows?.length) {
         return result.rows;
       }
-
       return [];
 
     } catch(err) {
       throw err;
     }
-  }
+  };
 
   async findOne(id) {
     try {
@@ -50,37 +47,31 @@ module.exports = class ProductModel {
       const result = await db.query(statement, values);
 
       if (result.rows?.length) {
-        return result.rows[0]
+        return result.rows[0];
       }
-  
       return null;
 
     } catch(err) {
       throw err;
     }
-  }
+  };
 
   async create(data) {
     try {
-      const name = data.name
-      const desc = data.desc
-      const image = data.image
-      const price = data.price
+      const { name, desc, image, price } = data;
       
-      const statement = `INSERT INTO product (name, desc, image, price) VALUES ($1, $2, $3, $4)`
-      const values = [name, desc, image, price]
+      const statement = `INSERT INTO product (name, desc, image, price) VALUES ($1, $2, $3, $4)`;
+      const values = [name, desc, image, price];
     
       const result = await db.query(statement, values);
 
       if (result.rows?.length) {
         return result.rows[0];
       }
-
       return null;
 
     } catch(err) {
       throw new Error(err);
     }
-  }
-
-} 
+  };
+};

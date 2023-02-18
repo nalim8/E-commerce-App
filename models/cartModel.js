@@ -121,15 +121,6 @@ module.exports = class CartModel {
     }
   }
 
-  /* async getTotal(sessionId) {
-    try {
-      const statement =
-        `SELECT total
-         FROM cart
-         INNER JOIN product`
-    }
-  } */
-
   async getItemId(sessionId, productId) {
     try {
       const statement = `SELECT id

@@ -1,7 +1,6 @@
 import { Link } from 'react-router-dom';
-import './Header.css'
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome"
-import { faAtom } from "@fortawesome/free-solid-svg-icons"
+import AuthButton from './AuthButton';
+import './Header.css';
 
 export default function Header() {
   return (
@@ -20,25 +19,23 @@ export default function Header() {
               <Link to='/'>Home</Link>
             </li>
             <li>
-              <Link to="/login">Login</Link>
+              <Link to="/register">Register</Link>
             </li>
             <li>
-              <Link to="/register">Registration</Link>
-            </li>
-            <li>
-              <Link to="/products">Products</Link>
+              <Link to="/products">Bikes</Link>
             </li>
             <li>
               <Link to="/orders">Orders</Link>
             </li>
             <li>
-              <Link to="/cart" className='cart'>
-                Cart
-              </Link>
+              <Link to="/cart" className='cart'>Cart</Link>
+            </li>
+            <li className="AuthButton">
+              <AuthButton />
             </li>
           </ul>
         </nav>
       </div>
     </header>
-  )
-}
+  );
+};

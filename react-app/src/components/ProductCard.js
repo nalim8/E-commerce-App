@@ -1,6 +1,6 @@
 //import './ProductCard.css'
 
-export default function ProductCard({name, desc}) {
+export default function ProductCard({ name, desc }) {
   return ( 
     <>
       <div className='product-card'>
@@ -15,6 +15,6 @@ export default function ProductCard({name, desc}) {
         </div>
       </div>
     </>
-  )
-}
+  );
+};
   

@@ -9,5 +9,5 @@ export default function CartItem({name, desc}) {
       </div>
       <div className="cart-card-footer">{desc}</div>
     </div>
-  )
-}
+  );
+};

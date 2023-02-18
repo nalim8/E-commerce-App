@@ -1,0 +1,20 @@
+.header-navigation ul li.AuthButton {
+  background-color: black;
+  border-radius: 5px;
+  font-size: 18px;
+  padding: 10px 20px;
+}
+
+.header-navigation ul li.AuthButton a {
+  color: white;
+  display: block;
+  height: 100%;
+  text-decoration: none;
+  text-transform: uppercase;
+  width: 100%;
+}
+
+.header-navigation ul li.AuthButton a:hover {
+  background-color: #da6313;
+  color: #fffc3c;
+}

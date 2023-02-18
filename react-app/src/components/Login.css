@@ -60,7 +60,7 @@ button {
   border: 0;
 }
 
-#signInButton {
+#googleButton {
   margin-top: 1rem;
   display: flex;
   justify-content: center;

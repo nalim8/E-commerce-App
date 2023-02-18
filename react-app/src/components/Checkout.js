@@ -1,5 +1,4 @@
-import './Checkout.css'
-import axios from '../api/axios'
+import './Checkout.css';
 
 export default function Checkout() {
 
@@ -23,7 +22,6 @@ export default function Checkout() {
     </form>
     <button className='checkout-button-stripe'>Check out with Stripe</button>
     </>
-  )
-  
-}
+  ); 
+};
         

@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
-//import ProductCard from './ProductCard'
 import axios from '../api/axios';
-import './Products.css'
+import './Products.css';
 
 export default function Products({ handleAddProduct }) {
   
@@ -20,11 +19,11 @@ export default function Products({ handleAddProduct }) {
         console.log(err)
       })
       .finally(() => setLoading(false))
-  }, [])
+  }, []);
 
   if (loading) {
     return <p>Loading...</p>; 
-  }
+  };
 
   const handleCategorySelection = (categoryId) => {
     setSelectedCategoryId(categoryId);
@@ -34,14 +33,9 @@ export default function Products({ handleAddProduct }) {
     ? products.filter((product) => product.category_id === selectedCategoryId)
     : products;
 
-  function FormattedPrice({price}) {
-    const formattedPrice = price.toLocaleString('en-US', { style: 'currency', currency: 'EUR' });
-    return <span>{formattedPrice}</span>;
-  }  
-
   return (
     <>
-      <h1>Products</h1>
+      <h1>Bikes</h1>
       <div className="category-selector">
         <button onClick={() => handleCategorySelection(null)}>All</button>
         <button onClick={() => handleCategorySelection(1)}>City and Trekking Bikes</button>
@@ -54,13 +48,12 @@ export default function Products({ handleAddProduct }) {
           <div className="product-card" key={product.id}>
             <img className="product-image" src={product.image} alt={product.name} />
             <h1 className='product-name'>{product.name}</h1>
-            <p className="product-price">{<FormattedPrice price={product.price} />}</p>
+            <p className="product-price">{product.price}</p>
             <p className="product-desc">{product.desc}</p>
             <button onClick={() => handleAddProduct(product)}>Add to Cart</button>
           </div>
         ))}
       </div>
-      
     </>  
   );
-}
+};

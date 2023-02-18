@@ -1,6 +1,4 @@
-const { Pool } = require('pg')
-const dotenv = require('dotenv')
-dotenv.config()
+const { Pool } = require('pg');
 
 const pool = new Pool({
   user: process.env.PGUSER,
@@ -8,21 +6,15 @@ const pool = new Pool({
   database: process.env.PGDATABASE,
   password: process.env.PGPASSWORD,
   port: process.env.PGPORT,
-})
+});
 
 module.exports = {
-  query: (text, params, callback) => {
-    return pool.query(text, params, callback)
+  connect: () => {
+    return pool.connect().then(() => {
+      console.log('Database connected!');
+    });
   },
-}
-
-/*
-pool.query('SELECT * FROM user', (err, res) => {
-    if(!err) {
-      console.log(res.rows)
-    } else { 
-      console.log(err.message)
-    }
-    pool.end()
-})
-*/
+  query: (text, params, callback) => {
+    return pool.query(text, params, callback);
+  },
+};
