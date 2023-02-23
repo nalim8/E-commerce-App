@@ -1,6 +1,6 @@
 node_modules/
 .env
-react-app/src/components/__mock__
-react-app/src/components/__test__
-react-app/src/components/AuthButton-test
+react-app/src/components/__mock__/
+react-app/src/components/__test__/
+react-app/src/components/AuthButton-test.js
 react-app/App.test.js

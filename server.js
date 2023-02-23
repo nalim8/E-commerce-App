@@ -9,7 +9,7 @@ const indexRouter = require('./routes');
 
 const clientUrl = process.env.CLIENT_URL;
 const sessionSecret = process.env.SESSION_SECRET;
-const PORT = process.env.PORT || 4000;
+const PORT = process.env.PORT || 4500;
 
 module.exports = {
   configure: (app) => {
