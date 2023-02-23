@@ -1,53 +1,60 @@
 # PERN-E-Commerce-App
 
-PERN-App (PostgreSQL, Express, React, Node.js) implemented as an online bike store.
+PERN-App (PostgreSQL, Express, React, Node.js) implemented as an online bike store. Users can create accounts, view products, add products to a cart, and place/view orders
 
 
-Installation instructions:
+## Running the app
 
 1. Install Node.js and PostgreSQL: Make sure you have Node.js and PostgreSQL installed on your system.
 
-2. Configuring the environment variables: Create an .env file and configure the environment variables to connect to the PostgreSQL database.
+2. This project requires a [PostgreSQL](https://www.postgresql.org/) database to be running locally.  Reference the ERD diagram located in the `resources` folder of this repo to view the structure of the tables.  You can use [pgAdmin](https://www.pgadmin.org/) to interact with the database manually.
 
-3. Installing the server dependencies: Run npm install in the server directory to install the server dependencies.
+3. This repo includes an `example.env` file that contains important environment variables for reference.  Make sure to create a `.env` file and include all variables found in the `example.env` file, replacing the example values with those specific to your environment/needs.
 
-4. Starting the server: Run npm start in the server directory to start the server.
+5. Run `npm install` in the server directory to install the server dependencies.
 
-5. Installing the client dependencies: Run npm install in the client directory to install the client dependencies.
+6. Run `npm start` in the server directory to start the server.
 
-6. Starting the client: Run npm start in the client directory to start the client.
+7. Run `npm install` in the client directory to install the client dependencies.
 
-7. Starting the app: Start the app by starting both the server and the client. For development run npm run dev in the root directory.
+8. Run `npm start` in the client directory to start the client.
 
+9. Start the app by starting both the server and the client. For development run `npm run dev` in the root directory.
+
+10. Once the app is running locally, you can access it in a browser at `http://localhost:<your-port>`
+
+
+## Dependencies
 
 Server dependencies:
-- "bcrypt": "^5.1.0",
-- "concurrently": "^7.6.0",
-- "cors": "^2.8.5",
-- "dotenv": "^16.0.3",
-- "express": "^4.18.2",
-- "express-flash": "0.0.2",
-- "express-session": "^1.17.3",
-- "morgan": "^1.10.0",
-- "passport": "^0.6.0",
-- "passport-google-oauth20": "^2.0.0",
-- "passport-local": "^1.0.0",
-- "pg": "^8.8.0",
-- "pg-promise": "^11.0.2",
-- "stripe": "^11.5.0"
+- bcrypt: 5.1.0
+- concurrently: 7.6.0
+- cors: 2.8.5
+- dotenv: 16.0.3
+- express: 4.18.2
+- express-flash: 0.0.2
+- express-session: 1.17.3
+- morgan: 1.10.0
+- passport: 0.6.0
+- passport-google-oauth20: 2.0.0
+- passport-local: 1.0.0
+- pg: 8.8.0
+- pg-promise: 11.0.2
+- stripe: 11.5.0
+- nodemon: 2.0.20
 
 Client dependencies:
-- "axios": "^1.2.2",
-- "nodemon": "^2.0.20",
-- "react": "^18.2.0",
-- "react-dom": "^18.2.0",
-- "react-google-button": "^0.7.2",
-- "react-google-login": "^5.2.2",
-- "react-router-dom": "^6.6.1",
-- "react-scripts": "5.0.1"
-- @fortawesome/fontawesome "^1.1.8",
-- "@fortawesome/fontawesome-free-solid": "^5.0.13",
-- "@fortawesome/fontawesome-svg-core": "^6.2.1",
-- "@fortawesome/free-regular-svg-icons": "^6.2.1",
-- "@fortawesome/free-solid-svg-icons": "^6.2.1",
-- "@fortawesome/react-fontawesome": "^0.2.0"
+- axios: 1.2.2
+- nodemon: 2.0.20
+- react: 18.2.0
+- react-dom: 18.2.0
+- react-google-button: 0.7.2
+- react-google-login: 5.2.2
+- react-router-dom: 6.6.1
+- react-scripts: 5.0.1
+- @fortawesome/fontawesome 1.1.8
+- @fortawesome/fontawesome-free-solid: 5.0.13
+- @fortawesome/fontawesome-svg-core: 6.2.1
+- @fortawesome/free-regular-svg-icons: 6.2.1
+- @fortawesome/free-solid-svg-icons: 6.2.1
+- @fortawesome/react-fontawesome: 0.2.0
