@@ -1,6 +1,6 @@
 # PERN-E-Commerce-App
 
-PERN-App (PostgreSQL, Express, React, Node.js) implemented as an online bike store. Users can create accounts, view products, add products to a cart, and place/view orders
+PERN-App (PostgreSQL, Express, React, Node.js) implemented as an online bike store. Users can create accounts, view products, add products to a cart, and place/view orders.
 
 
 ## Running the app
