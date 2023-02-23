@@ -61,6 +61,12 @@ Client dependencies:
 
 
 ## Preview
+
+### Frontend
 ![E-commerce-App_bikes](https://user-images.githubusercontent.com/30770031/220947419-b6f96a9b-6b68-4849-a4ff-6d1936cfe0fd.png)
 
 ![E-commerce-App_cart](https://user-images.githubusercontent.com/30770031/220947428-dc324476-ffe2-4d1a-baad-40e5a756d70b.png)
+
+
+### Database
+![ERD](https://user-images.githubusercontent.com/30770031/220948840-9dd67afb-9894-4190-8e76-1f12e919ecbc.png)
